@@ -3,8 +3,8 @@ title: "Simulation of CLT with Sample Means from Distribution of Exponential Dis
 author: "by KSW"
 date: "2023-10-22"
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -27,7 +27,7 @@ ggplot(data.frame(x=c(0,100)), aes(x=x)) +
   theme(plot.title = element_text(hjust = 0.5))
 ```
 
-<br/><br/>
+<br/>
 
 ## Simulations
 So, let's make samples for our simulation! we will make a thousand of samples of size 40. And calculate 1000 sample means. With this, we will look at the mean, variance of the distribution and distribution itself in comparison to the theoretical(CLT) counterpart of each of them. Let's start!
@@ -42,11 +42,7 @@ samples40 <- matrix(randomexp, nrow=B, ncol = n)
 ```
 In the above code, we set seed and make a thousand of samples of size 40 each. Here are a few example of our samples. Each row is equivalent to one sample.
 <br/><br/>
-```{r}
-head(samples40, 3)
-```
-Here are some examples.
-<br/><br/>
+
 Now we will calculate means of each rows to make 1000 sample means. 
 
 ```{r}
@@ -54,7 +50,7 @@ samplemeans <- apply(samples40, MARGIN = 1, mean)
 samplemeans <- data.frame(x=samplemeans)
 ```
 <br/>
-And here are also several sample of our sample means.
+And here are some examples of our sample means.
 
 ```{r}
 head(samplemeans)
@@ -67,7 +63,7 @@ samvar <- var(samplemeans$x)
 ```
 
 Mean and variance of our sample means distribution is `r sammean` and `r samvar` each.
-<br/><br/><br/>
+<br/><br/>
 
 ## Sample Mean versus Theoretical Mean
 So, let's compare our simulated mean to the mean that CLT states. Theoretically, CLT states that as the sample size becomes larger, the mean of sample means approximates a population mean. Since the mean of Exponential Distribution(population distribution) is '1/lambda' and we set lambda to 0.2, the population mean is 1/0.2 = 5. So our mean of sample means has to approximate 5. Previously we confirm that mean value is `r sammean`. It is pretty close!
@@ -99,7 +95,7 @@ grid.arrange(p1, p2, ncol=2)
 
 In above graph, the dashed lines represent the mean value of those two distribution each. As expected, simulation distribution is similar with theoretical normal distribution and both are centered at about 5, as the theorem says.
 
-<br/><br/>
+<br/>
 
 ## Sample Variance versus Theoretical Variance
 And next, Let's compare theoretical and simulation variance.
@@ -118,7 +114,7 @@ p3
 
 Despite their similarity, there is a slight difference between them. It can be assumed that it's because our sample size 40 is not large enough to reduce the difference fully.
 
-<br/><br/>
+<br/>
 
 ## Distribution
 Lastly, Let's check if the distribution of our sample means is approximately normal. For this, we will plot 2 graphs. One is the distribution of 1000 random points from population(Exponential Distribution) and the other is the distribution of our sample means.
