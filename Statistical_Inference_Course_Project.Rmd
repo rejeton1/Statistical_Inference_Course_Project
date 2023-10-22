@@ -66,6 +66,11 @@ So, let's compare our simulated mean to the mean that CLT states. Theoretically,
 
 And Let's check it visually. We will plot the distribution of sample means with the theoretical distribution that it has to follow together. Look at how similar those two distribution are.
 
+In according to CLT, if the sample size is large enough, the distribution of it approximates the normal distribution with same mean with the population and variance 'population variance/sample size'.
+
+```{r}
+p1 <- ggplot(data.frame)
+```
 
 
 ## Sample Variance versus Theoretical Variance
