@@ -1,0 +1,151 @@
+---
+title: "Simulation of CLT with Sample Means from Distribution of Exponential Distribution"
+author: "by KSW"
+date: "2023-10-22"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, echo=FALSE}
+library(ggplot2)
+library(gridExtra)
+```
+
+
+## Overview
+Central Limit Theorem(also as known as CLT) states that the distribution of sample means approximates a normal distribution (i.e., a “bell curve”) as the sample size becomes larger, regardless of the population's actual distribution shape. In this report, we will explore how the theorem appears in real life by simulating the samples from Exponential Distribution. Exponential Distribution is shown as follows when the lambda to '0.2'.
+
+```{r, echo=FALSE}
+ggplot(data.frame(x=c(0,100)), aes(x=x)) +
+  stat_function(fun=dexp, args=list(rate=0.2), colour="brown", linewidth =1.5) +
+  ggtitle("Exponential Distribution") +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+<br/><br/>
+
+## Simulations
+So, let's make samples for our simulation! we will make a thousand of samples of size 40. And calculate 1000 sample means. With this, we will look at the mean, variance of the distribution and distribution itself in comparison to the theoretical(CLT) counterpart of each of them. Let's start!
+<br/><br/>
+```{r}
+n=40
+B=1000
+
+set.seed(123)
+randomexp <- rexp(n*B, rate = 0.2)
+samples40 <- matrix(randomexp, nrow=B, ncol = n)
+```
+In the above code, we set seed and make a thousand of samples of size 40 each. Here are a few example of our samples. Each row is equivalent to one sample.
+<br/><br/>
+```{r}
+head(samples40, 3)
+```
+Here are some examples.
+<br/><br/>
+Now we will calculate means of each rows to make 1000 sample means. 
+
+```{r}
+samplemeans <- apply(samples40, MARGIN = 1, mean)
+samplemeans <- data.frame(x=samplemeans)
+```
+<br/>
+And here are also several sample of our sample means.
+
+```{r}
+head(samplemeans)
+```
+<br/>
+Let's calculate mean and variance of our distribution!
+```{r}
+sammean <- mean(samplemeans$x)
+samvar <- var(samplemeans$x)
+```
+
+Mean and variance of our sample means distribution is `r sammean` and `r samvar` each.
+<br/><br/><br/>
+
+## Sample Mean versus Theoretical Mean
+So, let's compare our simulated mean to the mean that CLT states. Theoretically, CLT states that as the sample size becomes larger, the mean of sample means approximates a population mean. Since the mean of Exponential Distribution(population distribution) is '1/lambda' and we set lambda to 0.2, the population mean is 1/0.2 = 5. So our mean of sample means has to approximate 5. Previously we confirm that mean value is `r sammean`. It is pretty close!
+
+And Let's check it visually. We will plot the distribution of sample means with the theoretical distribution that it has to follow together. Look at how similar those two distribution are.
+
+In according to CLT, if the sample size is large enough, the distribution of it approximates the normal distribution with same mean with the population and variance 'population variance/sample size'. The standard deviation of Exponential Distribution is 1/lambda, so when lambda is 0.2, the standard deviation is 5, variance is 25. So we can expect that our sample means distribution approximates normal distribution with mean 5, variance `r 25/40`. Let's check it!
+
+```{r, echo=FALSE, warning=FALSE}
+p1 <- ggplot(data.frame(x=c(0,10)), aes(x=x)) +
+  stat_function(fun = dnorm, args = list(mean=5, sd=sqrt(5/8)), color = 'blue', linewidth=1)+
+  ggtitle('Theoretical Distribution') +
+  geom_vline(aes(xintercept=5), color='blue', linetype='dashed', linewidth=1) +
+  scale_x_continuous(limits = c(0, 10)) +
+  scale_y_continuous(limits = c(0, .6)) +
+  theme(plot.title = element_text(hjust = 0.5))
+
+p2 <- ggplot(samplemeans, aes(x=x)) + 
+  geom_histogram(aes(y=..density..), binwidth=0.1, color='black') +
+  geom_density(alpha=0.3, fill='red') +
+  geom_vline(aes(xintercept=mean(x)), color='red', linetype='dashed', linewidth=1) +
+  ggtitle('Simulation Distribution') +
+  scale_x_continuous(limits = c(0, 10)) +
+  scale_y_continuous(limits = c(0, .6)) +
+  theme(plot.title = element_text(hjust = 0.5))
+
+grid.arrange(p1, p2, ncol=2)
+```
+
+In above graph, the dashed lines represent the mean value of those two distribution each. As expected, simulation distribution is similar with theoretical normal distribution and both are centered at about 5, as the theorem says.
+
+<br/><br/>
+
+## Sample Variance versus Theoretical Variance
+And next, Let's compare theoretical and simulation variance.
+As said before, the theoretical variance of sample mean distribution is 'population variance/sample size', so 25/40, `r 25/40` . In our set of sample means, variance is `r samvar`. They are quite similar! If we plot the 2 distribution in a panel together, it is as follows.(The 'blue' line is theoretical distribution and the 'red' line is simulated distribution.)
+
+```{r, echo=FALSE}
+p3 <- ggplot(samplemeans, aes(x=x)) +
+  geom_histogram(aes(y=..density..), binwidth=0.1, color='black') +
+  geom_density(alpha=0.3, fill='red', linewidth=1, color='red') +
+  stat_function(data=data.frame(x=c(0,10)), aes(x=x), fun = dnorm, args = list(mean=5, sd=sqrt(5/8)), color='blue', linewidth=1) +
+  ggtitle('Theoretical and Simulated Distribution') +
+  theme(plot.title = element_text(hjust = 0.5))
+
+p3
+```
+
+Despite their similarity, there is a slight difference between them. It can be assumed that it's because our sample size 40 is not large enough to reduce the difference fully.
+
+<br/><br/>
+
+## Distribution
+Lastly, Let's check if the distribution of our sample means is approximately normal. For this, we will plot 2 graphs. One is the distribution of 1000 random points from population(Exponential Distribution) and the other is the distribution of our sample means.
+
+```{r, echo=FALSE}
+samplepoints <- data.frame(x=rexp(1000, rate=0.2))
+
+p <- ggplot(samplemeans, aes(x=x)) + 
+  geom_histogram(aes(y=..density..), binwidth=0.1, color='black') +
+  geom_density(alpha=0.3, fill='red') +
+  geom_vline(aes(xintercept=mean(x)), color='blue', linetype='dashed', linewidth=1) +
+  ggtitle('Distribution of 1000 sample means') +
+  theme(plot.title = element_text(hjust = 0.5))
+
+
+q <- ggplot(samplepoints, aes(x=x)) +
+  geom_histogram(aes(y=..density..), binwidth=0.4, color='black') +
+  geom_density(alpha=0.3, fill='red') +
+  geom_vline(aes(xintercept=mean(x)), color='blue', linetype='dashed', linewidth=1) +
+  ggtitle('Distribution of 1000 random points') + 
+  theme(plot.title = element_text(hjust = 0.5))
+
+grid.arrange(q, p, ncol=2)
+```
+<br/>
+Again, CLT says that as the sample size becomes larger, the distribution of sample means approximates a normal distribution (i.e., a “bell curve”).
+In the above graph, the right graph(sample mean distribution) is symmetrical bell-shape and centered at about 5 although the distribution of 1000 sample points that approximates the population distribution is not normal. So we can say that our sample means distribution is approximately normally distributed.
+
+
+
