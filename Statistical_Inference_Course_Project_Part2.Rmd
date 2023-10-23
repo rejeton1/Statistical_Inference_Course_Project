@@ -1,0 +1,70 @@
+---
+title: "Exploration of Relation between Tooth length and Supplement Type/Dose using T test with ToothGrowth Data"
+output: html_document
+date: "2023-10-23"
+author: 'KSW'
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Overview
+
+In this report, using ToothGrowth Data included in basic R, we will test 2 null hypothesis. One of them is 'There is no difference between the guinea pig's average tooth length change in two group:group to which vitamin C supplied by orange juice(OJ), ascorbic acid(VC)'. The other is 'There is no difference in guinea pig's tooth length change by dose levels of vitamin C(3 groups, 0.5, 1, and 2 mg/day). For all of those tests, we use T test.
+
+## Load Data
+First, we will load data 'ToothGrowth'. It is contained in basic R. we can load data by following way.
+
+```{r}
+data <- ToothGrowth
+```
+
+From now on, ToothGrowth dataset is called 'data'. Let's take a look at it.
+
+```{r}
+dim(data)
+```
+
+'data' has 60 rows, each of which corresponds to one guinea pig. And it has 3 columns, so 3 variables.
+
+```{r}
+names(data)
+```
+
+Each of the columns mean as follows.
+<br/>
+
+ * len : Tooth length
+ * supp : Supplement type (VC or OJ)
+ * dose : Dose in milligrams
+
+
+
+## Explore Data Basically
+
+So, with this dataset, we will perform a basic exploratory analyses. First of all, we will make a table that contains the number of samples of specific 'supp', 'dose' values. After that, we will plot 2 graph, each of which contain the relationship between 'len-supp', 'len-dose' to see if there is anything special. Let's go through it!
+
+Here is a table that contain sample size in according to 'supp', 'dose' values.
+
+```{r}
+with(data, table(supp, dose))
+```
+
+Each groups have exactly same size 10.
+
+Next, Let's plot 2 graphs. As I said before, two graphs are boxplots that show 'len' value according to 'supp', 'dose' each.
+
+```{r}
+par(mfrow=c(1,2))
+boxplot(len~supp, data, xlab='Supplement Type', ylab='Tooth length', main = 'Tooth Length by Supplement Types', cex.main=1)
+boxplot(len~dose, data, xlab='Dose(milligrams/day)', ylab='Tooth length', main = 'Tooth Length by Dose Levels', cex.main=1)
+```
+It seems that OJ type has more effect to tooth length that VC type, and the more dose levels are, the longer tooth lengths are. But we need to perform more sophisticated test because there are several subgroups(like OJ/0.5dose group, VC/1dose, etc) and this result can be caused by chance. So we will divide them to subgroups and perform T test to test our hypothesis.
+
+
+
+## Hypothesis Test
+
+## Conclusion
+
