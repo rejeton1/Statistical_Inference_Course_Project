@@ -1,8 +1,11 @@
 ---
-title: "Exploration of Relation between Tooth length and Supplement Type/Dose using T test with ToothGrowth Data"
-output: html_document
+title: Exploration of Relation between Tooth length and Supplement Type/Dose using
+  T test with ToothGrowth Data
+author: "KSW"
 date: "2023-10-23"
-author: 'KSW'
+output:
+  html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -11,43 +14,29 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Overview
 
-In this report, using ToothGrowth Data included in basic R, we will test 2 null hypothesis. One of them is 'There is no difference between the guinea pig's average tooth length change in two group:group to which vitamin C supplied by orange juice(OJ), ascorbic acid(VC)'. The other is 'There is no difference in guinea pig's tooth length change by dose levels of vitamin C(3 groups, 0.5, 1, and 2 mg/day). For all of those tests, we use T test.
+In this report, using ToothGrowth Data included in basic R, we will test 2 null hypothesis. One of them is 'There is no difference between the guinea pig's average tooth length in two groups to which vitamin C supplied by orange juice(OJ), ascorbic acid(VC)'. The other is 'There is no difference in guinea pig's tooth length by dose levels of vitamin C(3 groups, 0.5, 1, and 2 mg/day). For all of those tests, we use T test.
 
 ## Load Data
-First, we will load data 'ToothGrowth'. It is contained in basic R. we can load data by following way.
+First, we will load data 'ToothGrowth'. It is contained in basic R. We can load data by following way.
 
 ```{r}
 data <- ToothGrowth
 ```
 
-From now on, ToothGrowth dataset is called 'data'. Let's take a look at it.
-
-```{r}
-dim(data)
-```
-
-'data' has 60 rows, each of which corresponds to one guinea pig. And it has 3 columns, so 3 variables.
-
-```{r}
-names(data)
-```
-
-Each of the columns mean as follows.
+From now on, ToothGrowth dataset will be called 'data'. Let's take a look at it.
 <br/>
+It has 60 rows, each of which corresponds to one guinea pig. And it has 3 columns, so 3 variables.('len', 'supp', 'dose') 
 
- * len : Tooth length
- * supp : Supplement type (VC or OJ)
- * dose : Dose in milligrams
-
+'len' column means 'Tooth length', 'supp' means 'Supplement type (VC or OJ)' and 'dose' means 'Dose in milligrams'
 
 
 ## Explore Data Basically
 
-So, with this dataset, we will perform a basic exploratory analyses. First of all, we will make a table that contains the number of samples of specific 'supp', 'dose' values. After that, we will plot 2 graph, each of which contain the relationship between 'len-supp', 'len-dose' to see if there is anything special. Let's go through it!
+So, with this dataset, we will perform a basic exploratory analyses. First of all, we will make a table that contains the number of samples of each specific 'supp', 'dose' values. After that, we will plot 2 graphs, each of which express the relationship between 'len-supp', 'len-dose' to see if there is anything special. Let's go through it!
 
 Here is a table that contain sample size in according to 'supp', 'dose' values.
 
-```{r}
+```{r, echo=FALSE}
 with(data, table(supp, dose))
 ```
 
@@ -55,13 +44,13 @@ Each groups have exactly same size 10.
 
 Next, Let's plot 2 graphs. As I said before, two graphs are boxplots that show 'len' value according to 'supp', 'dose' each.
 
-```{r}
+```{r, echo=FALSE}
 par(mfrow=c(1,2))
 boxplot(len~supp, data, xlab='Supplement Type', ylab='Tooth length', main = 'Tooth Length by Supplement Types', cex.main=1)
 boxplot(len~dose, data, xlab='Dose(milligrams/day)', ylab='Tooth length', main = 'Tooth Length by Dose Levels', cex.main=1)
 ```
-It seems that OJ type has more effect to tooth length that VC type, and the more dose levels are, the longer tooth lengths are. But we need to perform more sophisticated test because there are several subgroups(like OJ/0.5dose group, VC/1dose, etc) and this result can be caused by chance. So we will divide them to subgroups and perform T test to test our hypothesis.
-
+<br/>
+It seems that OJ type has more effect to tooth length that VC type, and the more dose levels are, the longer tooth lengths are. But we need to perform more sophisticated test because there are several subgroups(like OJ/0.5dose group, VC/1dose, etc) and also this result can be caused by chance. So we will divide them to subgroups and perform T test to test our hypothesis.
 
 
 ## Hypothesis Test
@@ -69,6 +58,7 @@ It seems that OJ type has more effect to tooth length that VC type, and the more
 
 Here, we will test tooth length difference by supplement type. So the null hypothesis is 'When the dose levels are same, there is no difference between average tooth length in two supplement type group(OJ/VC)' and the alternative hypothesis is 'When the dose levels are same, the average tooth length of OJ group is longer than that of VC group'
 We will divide our test into 3 cases in according to dose levels(variable 'dose'), and about each cases, we will perform 'independent T test' assuming common variance. Let's see!
+<br/>
 
 #### Case 1. OJ vs VC with dose level 0.5
 
@@ -78,53 +68,64 @@ Then we performed independent t test.
 ```{r}
 halfOJ <- with(data, data[supp=='OJ'&dose==0.5,1])
 halfVC <- with(data, data[supp=='VC'&dose==0.5,1])
-t.test(halfOJ, halfVC, paired = FALSE, var.equal = TRUE, alternative='greater')
+test1 <- t.test(halfOJ, halfVC, paired = FALSE, var.equal = TRUE, alternative='greater')
+test1$p.value
+test1$conf.int
 ```
 As a result of test, p-value is 0.0026, which is less than alpha=0.05. And also 95% percent confidence interval '2.38~Inf' does not include the value 0. So we can reject the null hypothesis. So, in case 1(dose level 0.5), we can conclude that the average tooth length of OJ type is longer than that of VC type.
-
+<br/>
 
 #### Case 2. OJ vs VC with dose level 1
 
 In case 2, we will do exactly same thing except that the dose level is not 0.5 but 1. Here is the result.
 
-```{r}
+```{r, echo=FALSE}
 oneOJ <- with(data, data[supp=='OJ'&dose==1,1])
 oneVC <- with(data, data[supp=='VC'&dose==1,1])
-t.test(oneOJ, oneVC, paired = FALSE, var.equal = TRUE, alternative='greater')
+test2 <- t.test(oneOJ, oneVC, paired = FALSE, var.equal = TRUE, alternative='greater')
+test2$p.value
+test2$conf.int
 ```
 
 The p-value is 0.0004, which is much less than alpha=0.05. And 95% percent confidence interval '3.38~Inf' also does not include the value 0. So we can reject the null hypothesis. So, also in case 2(dose level 1), we can conclude that the average tooth length of OJ type is longer than that of VC type.
-
+<br/>
 
 #### Case 3. OJ vs VC with dose level 2
 
 Lastly, we did the same thing with dose level 2.
 
-```{r}
+```{r, echo=FALSE}
 twoOJ <- with(data, data[supp=='OJ'&dose==2,1])
 twoVC <- with(data, data[supp=='VC'&dose==2,1])
-t.test(twoOJ, twoVC, paired = FALSE, var.equal = TRUE, alternative='greater')
+test3 <- t.test(twoOJ, twoVC, paired = FALSE, var.equal = TRUE, alternative='greater')
+test3$p.value
+test3$conf.int
 ```
 
 Unfortunately, in case 3, the p-value(0.52) is not less than alpha=0.05. And 95% percent confidence interval '-3.09~Inf' include the value 0. So we failed to reject the null hypothesis.
-
+<br/>
 
 So, to sum up the results of the first hypothesis test, we can say that in dose level 0.5, 1, the average tooth length of guinea pig in OJ group is longer than that of VC group. But we can't say that the same is true in case of dose level 2.
+<br/>
 
 
 ### Hypothesis 2. tooth length difference in according to dose level.
 
-To explore the relationship between the tooth length and dose level, make a hypothesis in similar way. So the null hypothesis is 'When the supplement types are same, there is no difference between average tooth length in three dose level groups(0.5/1/2)' and the alternative hypothesis is 'When the supplement types are same, the higher dose level is, the longer average tooth length is.'
-Similarly, We will divide our test into 4 cases in according to supplement type(OJ/VC) and dose levels(0.5 vs 1, 1 vs 2), and we will perform 'independent T test' assuming common variance.
+To explore the relationship between the tooth length and dose level, we will make a hypothesis in similar way. So the null hypothesis is 'When the supplement types are same, there is no difference between average tooth length in three dose level groups(0.5/1/2)' and the alternative hypothesis is 'When the supplement types are same, the higher dose level is, the longer average tooth length is.'
+Similarly, We will divide our test into 4 cases in according to supplement type(OJ/VC) and dose levels(0.5 vs 1, 1 vs 2), and we will also perform 'independent T test' assuming common variance.
+<br/>
 
 #### Case 1. OJ with dose level 0.5 vs OJ with dose level 1
 
 First case is OJ with dose level 0.5, and OJ with dose level 1. Let's see the result of test.
 
-```{r}
-t.test(halfOJ, oneOJ, paired = FALSE, var.equal = TRUE, alternative='less')
+```{r, echo=FALSE}
+test4 <- t.test(halfOJ, oneOJ, paired = FALSE, var.equal = TRUE, alternative='less')
+test4$p.value
+test4$conf.int
 ```
 The p-value is 0.00004, which is much less than alpha=0.05, and 95% percent confidence interval '-Inf~-6.217' does not include the value 0. So we can reject the null hypothesis. So, when supplement type is OJ, we can conclude that the average tooth length of dose level 1 is longer than that of level 0.5.
+<br/>
 
 
 
@@ -132,31 +133,45 @@ The p-value is 0.00004, which is much less than alpha=0.05, and 95% percent conf
 
 This time is 'OJ with dose level 1' vs 'OJ with dose level 2'
 
-```{r}
-t.test(oneOJ, twoOJ, paired = FALSE, var.equal = TRUE, alternative = 'less')
+```{r, echo=FALSE}
+test5 <- t.test(oneOJ, twoOJ, paired = FALSE, var.equal = TRUE, alternative = 'less')
+test5$p.value
+test5$conf.int
 ```
 The p-value is 0.019, and 95% percent confidence interval '-Inf~-0.768' does not include the value 0. So we also can reject the null hypothesis. So, when supplement type is OJ, we can conclude that the average tooth length of dose level 2 is longer than that of level 1.
+<br/>
 
 #### Case 3. VC with dose level 0.5 vs VC with dose level 1
 Third case is 'VC with dose level 0.5' vs 'OJ with dose level 1'
 
-```{r}
-t.test(halfVC, oneVC, paired = FALSE, var.equal = TRUE, alternative = 'less')
+```{r, echo=FALSE}
+test6 <- t.test(halfVC, oneVC, paired = FALSE, var.equal = TRUE, alternative = 'less')
+test6$p.value
+test6$conf.int
 ```
 The p-value is 0.00000032, and 95% percent confidence interval '-Inf~-6.74' does not include the value 0. So we also can reject the null hypothesis. So, when supplement type is VC, we can conclude that the average tooth length of dose level 1 is longer than that of level 0.5.
-
+<br/>
 
 #### Case 4. VC with dose level 1 vs VC with dose level 2
 The last case is 'VC with dose level 1' vs 'OJ with dose level 2'
 
-```{r}
-t.test(oneVC, twoVC, paired = FALSE, var.equal = TRUE, alternative = 'less')
+```{r, echo=FALSE}
+test7 <- t.test(oneVC, twoVC, paired = FALSE, var.equal = TRUE, alternative = 'less')
+test7$p.value
+test7$conf.int
 ```
 The p-value is 0.000017, and 95% percent confidence interval '-Inf~-6.40' does not include the value 0. So we also can reject the null hypothesis. So, when supplement type is VC, we can conclude that the average tooth length of dose level 2 is longer than that of level 1.
 
 
 
 So, to sum up the result of second hypothesis, we can say, that when supplement types(OJ or VC) are same, in 3 dose levels(0.5/1/2 mg/day), the higher the dose level is, the longer the average tooth length of guinea pig.
+<br/>
 
 ## Conclusion
+
+In this report we performed several times of independent t test with common variance to test the relationship between guinea pig's tooth length and supplement type/dose level of vitamin C.
+Through our test, we can conclude about the relationship of tooth length-supplement type that in dose level 0.5, 1, the average tooth length of guinea pig in OJ group is longer than that of VC group. But we can't say that the same is true in case of dose level 2.
+About the relationship of tooth length-dose level, we can say that when supplement types(OJ or VC) are same, in 3 dose levels(0.5/1/2 mg/day), the higher the dose level is, the longer the average tooth length of guinea pig.
+Of course, for these conclusions, we have to assume our data is iid normal and variance of each groups using in each tests are same.(common variance)
+
 
